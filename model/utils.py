@@ -419,3 +419,19 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
+
+def save_Pred_GT_batch(preds, labels, target_image_path, val_img_ids, start_idx, suffix):
+    """批量处理和保存预测结果"""
+    batch_size = preds.shape[0]
+    predsss = np.array((preds > 0).cpu()).astype('int64') * 255
+    predsss = np.uint8(predsss)
+    labelsss = labels * 255
+    labelsss = np.uint8(labelsss.cpu())
+    
+    for i in range(batch_size):
+        img = Image.fromarray(predsss[i].reshape(256, 256))
+        img.save(target_image_path + '/' + '%s_Pred' % (val_img_ids[start_idx+i]) + suffix)
+        img = Image.fromarray(labelsss[i].reshape(256, 256))
+        img.save(target_image_path + '/' + '%s_GT' % (val_img_ids[start_idx+i]) + suffix)
+    
+    return batch_size

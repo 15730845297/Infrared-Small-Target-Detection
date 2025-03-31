@@ -63,9 +63,9 @@ class Trainer(object):
         self.model.eval()
         tbar = tqdm(self.test_data)
         losses = AverageMeter()
-        with torch.no_grad():
+        with torch.inference_mode():
             num = 0
-            for i, ( data, labels) in enumerate(tbar):
+            for i, (data, labels) in enumerate(tbar):
                 data = data.cuda()
                 labels = labels.cuda()
                 if args.deep_supervision == 'True':

@@ -37,13 +37,13 @@ class Trainer(object):
             transforms.Normalize([.485, .456, .406], [.229, .224, .225])])
         trainset        = TrainSetLoader(dataset_dir,img_id=train_img_ids,base_size=args.base_size,crop_size=args.crop_size,transform=input_transform,suffix=args.suffix)
         testset         = TestSetLoader (dataset_dir,img_id=val_img_ids,base_size=args.base_size, crop_size=args.crop_size, transform=input_transform,suffix=args.suffix)
-        # 修改 train.py 中的 DataLoader 部分
+        # train.py中的DataLoader优化
         self.train_data = DataLoader(
             dataset=trainset, 
             batch_size=args.train_batch_size, 
             shuffle=True, 
-            num_workers=4,        # 根据CPU核心数调整（i5-13490F有10核心，建议设为4-6）
-            pin_memory=True,      # 启用内存锁页，加速数据到GPU的传输
+            num_workers=4,        # 根据CPU核心数调整
+            pin_memory=True,      # 加速数据到GPU的传输
             persistent_workers=True,  # 避免频繁重建worker
             drop_last=True
         )
@@ -78,28 +78,34 @@ class Trainer(object):
         self.best_iou       = 0
         self.best_recall    = [0,0,0,0,0,0,0,0,0,0,0]
         self.best_precision = [0,0,0,0,0,0,0,0,0,0,0]
+        self.scaler = torch.cuda.amp.GradScaler()
 
     # Training
-    def training(self,epoch):
-
+    def training(self, epoch):
         tbar = tqdm(self.train_data)
         self.model.train()
         losses = AverageMeter()
-        for i, ( data, labels) in enumerate(tbar):
-            data   = data.cuda()
+        for i, (data, labels) in enumerate(tbar):
+            data = data.cuda()
             labels = labels.cuda()
-            if args.deep_supervision == 'True':
-                preds= self.model(data)
-                loss = 0
-                for pred in preds:
-                    loss += SoftIoULoss(pred, labels)
-                loss /= len(preds)
-            else:
-               pred = self.model(data)
-               loss = SoftIoULoss(pred, labels)
+            
+            # 使用混合精度训练
+            with torch.cuda.amp.autocast():
+                if args.deep_supervision == 'True':
+                    preds = self.model(data)
+                    loss = 0
+                    for pred in preds:
+                        loss += SoftIoULoss(pred, labels)
+                    loss /= len(preds)
+                else:
+                    pred = self.model(data)
+                    loss = SoftIoULoss(pred, labels)
+            
             self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+            self.scaler.scale(loss).backward()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
+            
             losses.update(loss.item(), pred.size(0))
             tbar.set_description('Epoch %d, training loss %.4f' % (epoch, losses.avg))
         self.train_loss = losses.avg
@@ -111,8 +117,9 @@ class Trainer(object):
         self.mIoU.reset()
         losses = AverageMeter()
 
-        with torch.no_grad():
-            for i, ( data, labels) in enumerate(tbar):
+        with torch.inference_mode():
+            # 处理完一批次后释放不需要的中间结果
+            for i, (data, labels) in enumerate(tbar):
                 data = data.cuda()
                 labels = labels.cuda()
                 if args.deep_supervision == 'True':
