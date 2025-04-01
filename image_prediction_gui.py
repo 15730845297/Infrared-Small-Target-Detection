@@ -15,10 +15,11 @@ class ImageDisplayApp:
         self.root.title("图像显示界面")
         
         self.selected_file = None  # 用于存储选择的文件路径
+        self.model_path = None  # 用于存储选择的模型权重路径
 
         # 加载模型
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = self.load_model()
+        self.model = None  # 初始化模型为空
 
         # 图像预处理
         self.transform = transforms.Compose([
@@ -44,11 +45,14 @@ class ImageDisplayApp:
         self.predicted_canvas.grid(row=1, column=2)
 
     def load_model(self):
+        if not self.model_path:
+            print("请先选择模型权重文件！")
+            return None
+
         # 加载模型参数
         nb_filter, num_blocks = load_param('three', 'resnet_18')
         model = DNANet(num_classes=1, input_channels=3, block=Res_CBAM_block, num_blocks=num_blocks, nb_filter=nb_filter, deep_supervision=True)
-        model_path = "result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar"
-        checkpoint = torch.load(model_path, map_location=self.device)
+        checkpoint = torch.load(self.model_path, map_location=self.device)
 
         # 过滤掉多余的键
         filtered_state_dict = {k: v for k, v in checkpoint['state_dict'].items() if k in model.state_dict()}
@@ -57,7 +61,15 @@ class ImageDisplayApp:
         model.load_state_dict(filtered_state_dict)
         model.to(self.device)
         model.eval()
+        print(f"模型已加载：{self.model_path}")
         return model
+
+    def select_model(self):
+        # 选择模型权重文件
+        file_path = filedialog.askopenfilename(filetypes=[("Model Files", "*.pth;*.pth.tar")])
+        if file_path:
+            self.model_path = file_path
+            self.model = self.load_model()
 
     def select_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
@@ -74,6 +86,9 @@ class ImageDisplayApp:
     def start_test(self):
         if not self.selected_file:
             print("请先选择一个文件！")
+            return
+        if not self.model:
+            print("请先选择并加载模型权重！")
             return
         
         # 实时预测
@@ -138,9 +153,13 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ImageDisplayApp(root)
     
+    # 添加选择模型按钮
+    select_model_button = tk.Button(root, text="选择模型权重", command=lambda: app.select_model())
+    select_model_button.grid(row=2, column=0)
+
     # 添加文件选择按钮
     select_button = tk.Button(root, text="选择文件", command=lambda: app.select_file())
-    select_button.grid(row=2, column=0)
+    select_button.grid(row=2, column=1)
 
     # 添加开始测试按钮
     test_button = tk.Button(root, text="开始测试", command=lambda: app.start_test())
