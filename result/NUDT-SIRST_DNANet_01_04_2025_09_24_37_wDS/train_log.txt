@@ -1,0 +1,25 @@
+time:--01/04/2025 09:24:37
+model:--DNANet
+channel_size:--three
+backbone:--resnet_18
+deep_supervision:--True
+dataset:--NUDT-SIRST
+mode:--TXT
+test_size:--0.5
+root:--dataset/
+suffix:--.png
+split_method:--50_50
+workers:--4
+in_channels:--3
+base_size:--256
+crop_size:--256
+epochs:--10
+start_epoch:--0
+train_batch_size:--8
+test_batch_size:--16
+min_lr:--1e-05
+optimizer:--Adagrad
+scheduler:--CosineAnnealingLR
+lr:--0.05
+gpus:--0
+save_dir:--NUDT-SIRST_DNANet_01_04_2025_09_24_37_wDS

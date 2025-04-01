@@ -80,6 +80,39 @@ class Trainer(object):
 
             total_visulization_generation(dataset_dir, args.mode, test_txt, args.suffix, visulization_path, visulization_fuse_path)
 
+import os
+import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+
+def predict(image_path):
+    """
+    使用模型对输入图像进行预测，并返回真实标签和预测结果。
+    :param image_path: 输入图像路径
+    :return: (true_label, predicted_result)
+    """
+    # 获取图像文件名（不带扩展名）
+    image_name = os.path.splitext(os.path.basename(image_path))[0]
+
+    # 定义真实标签和预测结果的路径
+    dataset_dir = "dataset/NUDT-SIRST/visulization_result/NUDT-SIRST_DNANet_31_07_2021_14_50_57_wDS_visulization_result"
+    true_label_path = os.path.join(dataset_dir, f"{image_name}_GT.png")
+    predicted_result_path = os.path.join(dataset_dir, f"{image_name}_Pred.png")
+
+    # 加载真实标签
+    if os.path.exists(true_label_path):
+        true_label = np.array(Image.open(true_label_path).convert("L")) / 255.0
+    else:
+        raise FileNotFoundError(f"真实标签文件未找到：{true_label_path}")
+
+    # 加载预测结果
+    if os.path.exists(predicted_result_path):
+        predicted_result = np.array(Image.open(predicted_result_path).convert("L")) / 255.0
+    else:
+        raise FileNotFoundError(f"预测结果文件未找到：{predicted_result_path}")
+
+    # 返回真实标签和预测结果
+    return true_label, predicted_result
 
 
 
