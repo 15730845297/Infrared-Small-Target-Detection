@@ -1,4 +1,4 @@
-import os  # 添加这一行
+import os 
 from PIL import Image, ImageDraw, ImageTk
 import tkinter as tk
 from tkinter import filedialog
@@ -13,10 +13,11 @@ from scipy.ndimage import binary_dilation
 class ImageDisplayApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("图像显示界面")
+        self.root.title("红外小目标检测系统")
         
         self.selected_file = None  # 用于存储选择的文件路径
         self.model_path = None  # 用于存储选择的模型权重路径
+        self.current_results = None  # 用于存储当前的预测结果和标记结果
 
         # 加载模型
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -105,11 +106,18 @@ class ImageDisplayApp:
         self.predicted_image_tk = ImageTk.PhotoImage(predicted_result_image)
         self.predicted_canvas.create_image(0, 0, anchor=tk.NW, image=self.predicted_image_tk)
 
-        # 保存预测结果并显示带红色框的图像
-        annotated_image = self.save_prediction(predicted_result, self.selected_file)
-        annotated_image = annotated_image.resize((300, 300))
-        self.annotated_image_tk = ImageTk.PhotoImage(annotated_image)
+        # 生成带红色框的预测图像
+        annotated_image = self.generate_annotated_image(predicted_result, self.selected_file)
+        annotated_image_resized = annotated_image.resize((300, 300))
+        self.annotated_image_tk = ImageTk.PhotoImage(annotated_image_resized)
         self.annotated_canvas.create_image(0, 0, anchor=tk.NW, image=self.annotated_image_tk)
+
+        # 存储当前结果
+        self.current_results = {
+            "predicted_result": predicted_result,
+            "annotated_image": annotated_image,
+            "original_file_path": self.selected_file
+        }
 
     def predict(self, image_path):
         # 加载并预处理图像
@@ -124,21 +132,49 @@ class ImageDisplayApp:
             predicted_result = torch.sigmoid(output).squeeze().cpu().numpy()
 
         # 加载真实标签
-        # 假设真实标签存储在 dataset/NUDT-SIRST/masks 文件夹中，文件名与输入图像相同
         mask_dir = "dataset/NUDT-SIRST/masks"
         image_name = os.path.basename(image_path)
         mask_path = os.path.join(mask_dir, image_name)
         if os.path.exists(mask_path):
             true_label = np.array(Image.open(mask_path).convert("L")) / 255.0
         else:
-            true_label = None  # 如果找不到真实标签文件，则返回 None
+            true_label = None
 
         return true_label, predicted_result
 
-    def save_prediction(self, predicted_result, original_file_path):
+    def generate_annotated_image(self, predicted_result, original_file_path):
+        # 加载原始图像
+        original_image = Image.open(original_file_path).convert("RGB")
+        original_image = original_image.resize((256, 256))  # 确保尺寸一致
+
+        # 计算目标边界
+        threshold = 0.5
+        binary_mask = (predicted_result > threshold).astype(np.uint8)
+        dilated_mask = binary_dilation(binary_mask)
+        boundary_mask = dilated_mask ^ binary_mask
+
+        # 绘制红色边界
+        draw = ImageDraw.Draw(original_image)
+        for y in range(boundary_mask.shape[0]):
+            for x in range(boundary_mask.shape[1]):
+                if boundary_mask[y, x]:
+                    draw.point([x, y], fill="red")
+
+        return original_image
+
+    def save_results(self):
+        if not self.current_results:
+            print("没有可保存的结果，请先运行测试！")
+            return
+
         # 创建保存目录
         save_dir = "predicts"
         os.makedirs(save_dir, exist_ok=True)
+
+        # 获取当前结果
+        predicted_result = self.current_results["predicted_result"]
+        annotated_image = self.current_results["annotated_image"]
+        original_file_path = self.current_results["original_file_path"]
 
         # 获取原始文件名和当前时间
         original_file_name = os.path.basename(original_file_path).split(".")[0]
@@ -152,28 +188,11 @@ class ImageDisplayApp:
         predicted_image = Image.fromarray((predicted_result * 255).astype(np.uint8))
         predicted_image.save(save_path)
 
-        # 加载原始图像
-        original_image = Image.open(original_file_path).convert("RGB")
-        original_image = original_image.resize((256, 256))  # 确保尺寸一致
-
-        # 计算目标边界
-        threshold = 0.5  # 阈值，预测值大于此值的区域被认为是目标
-        binary_mask = (predicted_result > threshold).astype(np.uint8)  # 二值化预测结果
-        dilated_mask = binary_dilation(binary_mask)  # 扩展目标区域
-        boundary_mask = dilated_mask ^ binary_mask  # 边界为扩展区域减去原始区域
-
-        # 绘制红色边界
-        draw = ImageDraw.Draw(original_image)
-        for y in range(boundary_mask.shape[0]):
-            for x in range(boundary_mask.shape[1]):
-                if boundary_mask[y, x]:  # 如果是边界像素
-                    draw.point([x, y], fill="red")  # 绘制红色像素点
-
         # 保存带红色边界的图像
-        original_image.save(save_annotated_path)
+        annotated_image.save(save_annotated_path)
+
         print(f"预测结果已保存到: {save_path}")
         print(f"标注结果已保存到: {save_annotated_path}")
-        return original_image
 
 if __name__ == "__main__":
     root = tk.Tk()
@@ -190,5 +209,9 @@ if __name__ == "__main__":
     # 添加开始测试按钮
     test_button = tk.Button(root, text="开始测试", command=lambda: app.start_test())
     test_button.grid(row=2, column=2)
+
+    # 添加保存结果按钮
+    save_button = tk.Button(root, text="保存结果", command=lambda: app.save_results())
+    save_button.grid(row=2, column=3)
     
     root.mainloop()
