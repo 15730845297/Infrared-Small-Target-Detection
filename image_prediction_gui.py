@@ -5,6 +5,7 @@ from tkinter import filedialog
 import torch
 from torchvision import transforms
 import numpy as np
+from datetime import datetime  # 用于获取当前时间
 from model.model_DNANet import DNANet, Res_CBAM_block
 from model.load_param_data import load_param
 
@@ -89,6 +90,9 @@ class ImageDisplayApp:
         self.predicted_image_tk = ImageTk.PhotoImage(predicted_result_image)
         self.predicted_canvas.create_image(0, 0, anchor=tk.NW, image=self.predicted_image_tk)
 
+        # 保存预测结果
+        self.save_prediction(predicted_result, self.selected_file)
+
     def predict(self, image_path):
         # 加载并预处理图像
         image = Image.open(image_path).convert("RGB")
@@ -112,6 +116,23 @@ class ImageDisplayApp:
             true_label = None  # 如果找不到真实标签文件，则返回 None
 
         return true_label, predicted_result
+
+    def save_prediction(self, predicted_result, original_file_path):
+        # 创建保存目录
+        save_dir = "predicts"
+        os.makedirs(save_dir, exist_ok=True)
+
+        # 获取原始文件名和当前时间
+        original_file_name = os.path.basename(original_file_path).split(".")[0]
+        current_time = datetime.now().strftime("%Y%m%d_%H%M")
+
+        # 构造保存文件路径
+        save_path = os.path.join(save_dir, f"{original_file_name}_Pred_{current_time}.png")
+
+        # 保存预测结果
+        predicted_image = Image.fromarray((predicted_result * 255).astype(np.uint8))
+        predicted_image.save(save_path)
+        print(f"预测结果已保存到: {save_path}")
 
 if __name__ == "__main__":
     root = tk.Tk()
