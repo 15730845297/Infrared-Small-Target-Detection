@@ -106,6 +106,11 @@ if __name__ == "__main__":
     args = parse_args()
     main(args)
 
+parser.add_argument('--model_dir', type=str,
+                    default = '../result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar',
+                    help    = 'NUDT-SIRST_DNANet_31_07_2021_14_50_57_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar,'
+                              'NUAA-SIRST_DNANet_28_07_2021_05_21_33_wDS/mIoU__DNANet_NUAA-SIRST_epoch.pth.tar')
+
 
 
 

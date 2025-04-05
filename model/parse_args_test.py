@@ -8,62 +8,76 @@ from model.utils import *
 
 
 def parse_args():
-    """Training Options for Segmentation Experiments"""
+    """测试红外小目标检测网络的参数配置
+    
+    此函数定义了测试和可视化过程中所有可配置的参数，包括：
+    - 模型选择与网络架构配置
+    - 数据集选择与预处理参数
+    - 测试参数（批次大小等）
+    - 硬件与评估指标配置
+    
+    Returns:
+        argparse.Namespace: 包含所有配置参数的命名空间对象
+    """
     parser = argparse.ArgumentParser(description='Dense_Nested_Attention_Network_For_SIRST')
-    # choose model
+    
+    # ---------- 模型选择参数 ----------
     parser.add_argument('--model', type=str, default='DNANet',
-                        help='model name: DNANet')
+                        help='模型名称: DNANet')
 
-    # parameter for DNANet
+    # ---------- DNANet网络架构参数 ----------
     parser.add_argument('--channel_size', type=str, default='three',
-                        help='one,  two,  three,  four')
+                        help='特征通道大小: one(较小), two, three(默认), four(较大)')
     parser.add_argument('--backbone', type=str, default='resnet_18',
-                        help='vgg10, resnet_10,  resnet_18,  resnet_34 ')
-    parser.add_argument('--deep_supervision', type=str, default='True', help='True or False (model==DNANet)')
+                        help='骨干网络: vgg10, resnet_10, resnet_18(默认), resnet_34')
+    parser.add_argument('--deep_supervision', type=str, default='True', 
+                        help='是否使用深度监督: True(启用多尺度监督) 或 False(仅使用最终输出)')
 
-
-    # data and pre-process
+    # ---------- 数据集与模型权重路径配置 ----------
     parser.add_argument('--dataset', type=str, default='NUDT-SIRST',
-                        help='dataset name: NUDT-SIRST, NUAA-SIRST, NUST-SIRST')
+                        help='数据集名称: NUDT-SIRST, NUAA-SIRST, NUST-SIRST')
     parser.add_argument('--st_model', type=str, default='NUDT-SIRST_DNANet_31_07_2021_14_50_57_wDS',
-                        help='NUDT-SIRST_DNANet_31_07_2021_14_50_57_wDS,'
-                             'NUAA-SIRST_DNANet_28_07_2021_05_21_33_wDS')
+                        help='模型存储目录名称，用于结果可视化')
     parser.add_argument('--model_dir', type=str,
                         default = '../result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar',
-                        help    = 'NUDT-SIRST_DNANet_31_07_2021_14_50_57_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar,'
-                                  'NUAA-SIRST_DNANet_28_07_2021_05_21_33_wDS/mIoU__DNANet_NUAA-SIRST_epoch.pth.tar')
-    parser.add_argument('--mode', type=str, default='TXT', help='mode name:  TXT, Ratio')
-    parser.add_argument('--test_size', type=float, default='0.5', help='when --mode==Ratio')
-    parser.add_argument('--root', type=str, default='dataset/')
-    parser.add_argument('--suffix', type=str, default='.png')
+                        help    = '模型权重文件路径，可以是相对于result/目录的路径')
+    
+    # ---------- 数据加载与预处理参数 ----------
+    parser.add_argument('--mode', type=str, default='TXT', 
+                        help='数据分割模式: TXT(使用预定义文件列表), Ratio(按比例随机分割)')
+    parser.add_argument('--test_size', type=float, default='0.5', 
+                        help='测试集比例，仅在mode=Ratio时生效')
+    parser.add_argument('--root', type=str, default='dataset/',
+                        help='数据集根目录路径')
+    parser.add_argument('--suffix', type=str, default='.png',
+                        help='图像文件后缀')
     parser.add_argument('--split_method', type=str, default='50_50',
-                        help='50_50, 10000_100(for NUST-SIRST)')
+                        help='数据分割方法: 50_50(默认), 10000_100(用于NUST-SIRST)')
     parser.add_argument('--workers', type=int, default=4,
-                        metavar='N', help='dataloader threads')
+                        metavar='N', help='数据加载器的工作线程数')
     parser.add_argument('--in_channels', type=int, default=3,
-                        help='in_channel=3 for pre-process')
+                        help='输入图像通道数，默认为3(RGB)')
     parser.add_argument('--base_size', type=int, default=256,
-                        help='base image size')
+                        help='基础图像大小')
     parser.add_argument('--crop_size', type=int, default=256,
-                        help='crop image size')
+                        help='裁剪图像大小')
 
-    #  hyper params for training
+    # ---------- 测试超参数 ----------
     parser.add_argument('--epochs', type=int, default=100, metavar='N',
-                        help='number of epochs to train (default: 110)')
+                        help='训练轮数，用于日志记录')
     parser.add_argument('--test_batch_size', type=int, default=1,
-                        metavar='N', help='input batch size for \
-                        testing (default: 32)')
+                        metavar='N', help='测试批次大小')
 
-    # cuda and logging
+    # ---------- 硬件配置 ----------
     parser.add_argument('--gpus', type=str, default='0',
-                        help='Training with GPUs, you can specify 1,3 for example.')
+                        help='使用的GPU编号，例如可指定"0"或"0,1"表示使用多个GPU')
 
-    # ROC threshold
+    # ---------- 评估指标配置 ----------
     parser.add_argument('--ROC_thr', type=int, default=10,
-                        help='crop image size')
+                        help='ROC曲线阈值数量，用于评估模型性能')
 
-
+    # 解析参数
     args = parser.parse_args()
 
-    # the parser
+    # 返回解析后的参数
     return args
