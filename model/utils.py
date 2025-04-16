@@ -421,17 +421,25 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def save_Pred_GT_batch(preds, labels, target_image_path, val_img_ids, start_idx, suffix):
-    """批量处理和保存预测结果"""
+    """批量处理和保存预测结果，使用向量化操作提高效率"""
     batch_size = preds.shape[0]
-    predsss = np.array((preds > 0).cpu()).astype('int64') * 255
+    # 使用一次性操作替代循环中重复的转换
+    predsss = (preds > 0).cpu().numpy().astype('int64') * 255
     predsss = np.uint8(predsss)
-    labelsss = labels * 255
-    labelsss = np.uint8(labelsss.cpu())
+    labelsss = labels.cpu().numpy() * 255
+    labelsss = np.uint8(labelsss)
     
-    for i in range(batch_size):
-        img = Image.fromarray(predsss[i].reshape(256, 256))
-        img.save(target_image_path + '/' + '%s_Pred' % (val_img_ids[start_idx+i]) + suffix)
-        img = Image.fromarray(labelsss[i].reshape(256, 256))
-        img.save(target_image_path + '/' + '%s_GT' % (val_img_ids[start_idx+i]) + suffix)
+    # 使用并行处理保存多张图像
+    import concurrent.futures
+    
+    def save_single_image(i):
+        pred_img = Image.fromarray(predsss[i].reshape(256, 256))
+        gt_img = Image.fromarray(labelsss[i].reshape(256, 256))
+        pred_img.save(os.path.join(target_image_path, f"{val_img_ids[start_idx+i]}_Pred{suffix}"))
+        gt_img.save(os.path.join(target_image_path, f"{val_img_ids[start_idx+i]}_GT{suffix}"))
+    
+    # 使用线程池并行处理图像保存
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        executor.map(save_single_image, range(batch_size))
     
     return batch_size

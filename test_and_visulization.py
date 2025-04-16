@@ -2,6 +2,7 @@
 from tqdm             import tqdm
 from model.parse_args_test import  parse_args
 import scipy.io as scio
+import os
 
 # Torch and visulization
 from torchvision      import transforms
@@ -58,8 +59,8 @@ class Trainer(object):
         # Checkpoint
         checkpoint_path = 'result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar'
         checkpoint      = torch.load(checkpoint_path)
-        target_image_path = dataset_dir + '\\' +'visulization_result' + '\\' + args.st_model + '_visulization_result'
-        target_dir        = dataset_dir + '\\' +'visulization_result' + '\\' + args.st_model + '_visulization_fuse'
+        target_image_path = os.path.join(dataset_dir, 'visulization_result', args.st_model + '_visulization_result')
+        target_dir = os.path.join(dataset_dir, 'visulization_result', args.st_model + '_visulization_fuse')
 
         make_visulization_dir(target_image_path, target_dir)
 
@@ -70,7 +71,7 @@ class Trainer(object):
         self.model.eval()
         tbar = tqdm(self.test_data)
         losses = AverageMeter()
-        with torch.no_grad():
+        with torch.inference_mode():  # 比no_grad()更高效
             num = 0
             for i, ( data, labels) in enumerate(tbar):
                 data = data.cuda()
@@ -149,6 +150,10 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     main(args)
+
+# 在test.py和test_and_visulization.py的大型循环后添加
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()  # 清理GPU缓存，释放内存
 
 
 

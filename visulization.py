@@ -75,8 +75,12 @@ class Trainer(object):
                     pred =preds[-1]
                 else:
                     pred = self.model(data)
-                save_Pred_GT(pred, labels,visulization_path, val_img_ids, num, args.suffix)
-                num += 1
+                # 将单张保存:
+                # save_Pred_GT(pred, labels, visulization_path, val_img_ids, num, args.suffix)
+                # num += 1
+
+                # 替换为批量保存:
+                num += save_Pred_GT_batch(pred, labels, visulization_path, val_img_ids, num, args.suffix)
 
             total_visulization_generation(dataset_dir, args.mode, test_txt, args.suffix, visulization_path, visulization_fuse_path)
 

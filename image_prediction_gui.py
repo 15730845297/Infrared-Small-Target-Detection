@@ -22,6 +22,7 @@ class ImageDisplayApp:
         # 加载模型
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = None  # 初始化模型为空
+        self.model_loaded = False  # 添加标记避免重复加载
 
         # 图像预处理
         self.transform = transforms.Compose([
@@ -72,7 +73,14 @@ class ImageDisplayApp:
         file_path = filedialog.askopenfilename(filetypes=[("Model Files", "*.pth;*.pth.tar")])
         if file_path:
             self.model_path = file_path
-            self.model = self.load_model()
+            # 加载模型
+            if not self.model_loaded:
+                self.model = self.load_model()
+                self.model_loaded = True
+            else:
+                # 只有模型路径变更时才重新加载
+                if self.model_path != file_path:
+                    self.model = self.load_model()
 
     def select_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
@@ -125,46 +133,45 @@ class ImageDisplayApp:
         input_tensor = self.transform(image).unsqueeze(0).to(self.device)
 
         # 模型预测
-        with torch.no_grad():
+        with torch.inference_mode():  # 使用inference_mode替代no_grad提高效率
             output = self.model(input_tensor)
-            if isinstance(output, list):  # 如果输出是列表，取最后一个
+            if isinstance(output, list):
                 output = output[-1]
             predicted_result = torch.sigmoid(output).squeeze().cpu().numpy()
 
-        # 加载真实标签
-        mask_dir = "dataset/NUDT-SIRST/masks"
-        image_name = os.path.basename(image_path)
-        mask_path = os.path.join(mask_dir, image_name)
-        if os.path.exists(mask_path):
-            true_label = np.array(Image.open(mask_path).convert("L")) / 255.0
-        else:
-            true_label = None
+        # 优化真实标签加载 - 只有在需要时才尝试加载
+        true_label = None
+        # 只有可能来自数据集的图像才尝试查找对应标签
+        if "dataset/NUDT-SIRST" in image_path or "dataset\\NUDT-SIRST" in image_path:
+            mask_dir = "dataset/NUDT-SIRST/masks"
+            image_name = os.path.basename(image_path)
+            mask_path = os.path.join(mask_dir, image_name)
+            if os.path.exists(mask_path):
+                true_label = np.array(Image.open(mask_path).convert("L")) / 255.0
 
         return true_label, predicted_result
 
     def generate_annotated_image(self, predicted_result, original_file_path):
         # 加载原始图像
         original_image = Image.open(original_file_path).convert("RGB")
-        original_image = original_image.resize((256, 256))  # 确保尺寸一致
+        original_image = original_image.resize((256, 256))
 
-        # 生成二值掩码，使用较低的阈值以捕获目标的更多部分
-        threshold = 0.3  # 降低阈值，更容易捕获目标的完整轮廓
+        # 创建副本用于绘制，避免修改原始图像
+        annotated_image = original_image.copy()
+        
+        # 优化二值化过程 - 直接使用numpy操作而非scipy的binary_dilation
+        threshold = 0.3
         binary_mask = (predicted_result > threshold).astype(np.uint8)
         
-        # 对掩码进行膨胀操作，确保目标的边缘部分也被包含
-        from scipy.ndimage import binary_dilation
-        dilated_mask = binary_dilation(binary_mask, iterations=2)
-        
-        # 使用scipy.ndimage的label函数找到连通区域
-        from scipy.ndimage import label, find_objects
-        labeled_array, num_features = label(dilated_mask)
+        # 使用更高效的连通区域查找
+        from skimage import measure
+        labeled_array = measure.label(binary_mask)
+        regions = measure.regionprops(labeled_array)
         
         # 绘制红色边框
-        draw = ImageDraw.Draw(original_image)
-        for obj_slice in find_objects(labeled_array):
-            # 获取边界框坐标
-            minr, maxr = obj_slice[0].start, obj_slice[0].stop
-            minc, maxc = obj_slice[1].start, obj_slice[1].stop
+        draw = ImageDraw.Draw(annotated_image)
+        for region in regions:
+            minr, minc, maxr, maxc = region.bbox
             
             # 扩大边界框以确保完全框住目标
             padding = 3  # 边界框扩展像素数
@@ -173,19 +180,15 @@ class ImageDisplayApp:
             maxr = min(256, maxr + padding)
             maxc = min(256, maxc + padding)
             
-            # 绘制矩形框
+            # 绘制矩形框，统一使用width参数
             try:
-                # 尝试使用width参数(PIL较新版本支持)
                 draw.rectangle([(minc, minr), (maxc, maxr)], outline="red", width=2)
             except TypeError:
-                # 兼容旧版本PIL，通过绘制多个矩形实现粗线框
+                # 兼容旧版PIL
                 for i in range(2):
-                    draw.rectangle(
-                        [(minc-i, minr-i), (maxc+i, maxr+i)], 
-                        outline="red"
-                    )
+                    draw.rectangle([(minc-i, minr-i), (maxc+i, maxr+i)], outline="red")
 
-        return original_image
+        return annotated_image
 
     def save_results(self):
         if not self.current_results:

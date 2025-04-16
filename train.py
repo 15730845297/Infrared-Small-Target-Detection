@@ -42,10 +42,11 @@ class Trainer(object):
             dataset=trainset, 
             batch_size=args.train_batch_size, 
             shuffle=True, 
-            num_workers=4,        # 根据CPU核心数调整
-            pin_memory=True,      # 加速数据到GPU的传输
-            persistent_workers=True,  # 避免频繁重建worker
-            drop_last=True
+            num_workers=min(os.cpu_count(), 8),  # 根据CPU核心数自适应调整
+            pin_memory=True,      
+            persistent_workers=True,  
+            drop_last=True,
+            prefetch_factor=2  # 预取因子提高数据加载效率
         )
         self.test_data = DataLoader(
             dataset=testset, 
@@ -66,13 +67,12 @@ class Trainer(object):
         self.model      = model
 
         # Optimizer and lr scheduling
-        if args.optimizer   == 'Adam':
-            self.optimizer  = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr)
+        if args.optimizer == 'Adam':
+            self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr)
         elif args.optimizer == 'Adagrad':
-            self.optimizer  = torch.optim.Adagrad(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr)
-        if args.scheduler   == 'CosineAnnealingLR':
-            self.scheduler  = lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=args.epochs, eta_min=args.min_lr)
-        # 删除这一行：self.scheduler.step()
+            self.optimizer = torch.optim.Adagrad(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr)
+        if args.scheduler == 'CosineAnnealingLR':
+            self.scheduler = lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=args.epochs, eta_min=args.min_lr)
 
         # Evaluation metrics
         self.best_iou       = 0
@@ -148,7 +148,10 @@ def main(args):
     for epoch in range(args.start_epoch, args.epochs):
         trainer.training(epoch)
         trainer.testing(epoch)
-
+        trainer.scheduler.step()  # 正确位置：每个epoch结束后更新学习率
+# 在test.py和test_and_visulization.py的大型循环后添加
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()  # 清理GPU缓存，释放内存
 
 if __name__ == "__main__":
     args = parse_args()
