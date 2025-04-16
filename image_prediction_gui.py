@@ -30,26 +30,26 @@ class ImageDisplayApp:
             transforms.Normalize([.485, .456, .406], [.229, .224, .225])
         ])
 
-        # 创建四个显示区
+        # 创建四个显示区 (修改顺序: 原始图像 -> 真实标签 -> 预测标签 -> 预测结果)
         self.original_label = tk.Label(root, text="原始图像")
         self.original_label.grid(row=0, column=0)
         self.original_canvas = tk.Canvas(root, width=300, height=300)
         self.original_canvas.grid(row=1, column=0)
 
-        self.annotated_label = tk.Label(root, text="预测图像")
-        self.annotated_label.grid(row=0, column=1)
-        self.annotated_canvas = tk.Canvas(root, width=300, height=300)
-        self.annotated_canvas.grid(row=1, column=1)
-
         self.true_label = tk.Label(root, text="真实标签")
-        self.true_label.grid(row=0, column=2)
+        self.true_label.grid(row=0, column=1)
         self.true_canvas = tk.Canvas(root, width=300, height=300)
-        self.true_canvas.grid(row=1, column=2)
+        self.true_canvas.grid(row=1, column=1)
 
-        self.predicted_label = tk.Label(root, text="预测结果")
-        self.predicted_label.grid(row=0, column=3)
+        self.predicted_label = tk.Label(root, text="预测标签")  # 已修改"预测结果"为"预测标签"
+        self.predicted_label.grid(row=0, column=2)
         self.predicted_canvas = tk.Canvas(root, width=300, height=300)
-        self.predicted_canvas.grid(row=1, column=3)
+        self.predicted_canvas.grid(row=1, column=2)
+
+        self.annotated_label = tk.Label(root, text="预测结果")  # 已修改"预测图像"为"预测结果"
+        self.annotated_label.grid(row=0, column=3)
+        self.annotated_canvas = tk.Canvas(root, width=300, height=300)
+        self.annotated_canvas.grid(row=1, column=3)
 
     def load_model(self):
         if not self.model_path:
@@ -147,18 +147,43 @@ class ImageDisplayApp:
         original_image = Image.open(original_file_path).convert("RGB")
         original_image = original_image.resize((256, 256))  # 确保尺寸一致
 
-        # 计算目标边界
-        threshold = 0.5
+        # 生成二值掩码，使用较低的阈值以捕获目标的更多部分
+        threshold = 0.3  # 降低阈值，更容易捕获目标的完整轮廓
         binary_mask = (predicted_result > threshold).astype(np.uint8)
-        dilated_mask = binary_dilation(binary_mask)
-        boundary_mask = dilated_mask ^ binary_mask
-
-        # 绘制红色边界
+        
+        # 对掩码进行膨胀操作，确保目标的边缘部分也被包含
+        from scipy.ndimage import binary_dilation
+        dilated_mask = binary_dilation(binary_mask, iterations=2)
+        
+        # 使用scipy.ndimage的label函数找到连通区域
+        from scipy.ndimage import label, find_objects
+        labeled_array, num_features = label(dilated_mask)
+        
+        # 绘制红色边框
         draw = ImageDraw.Draw(original_image)
-        for y in range(boundary_mask.shape[0]):
-            for x in range(boundary_mask.shape[1]):
-                if boundary_mask[y, x]:
-                    draw.point([x, y], fill="red")
+        for obj_slice in find_objects(labeled_array):
+            # 获取边界框坐标
+            minr, maxr = obj_slice[0].start, obj_slice[0].stop
+            minc, maxc = obj_slice[1].start, obj_slice[1].stop
+            
+            # 扩大边界框以确保完全框住目标
+            padding = 3  # 边界框扩展像素数
+            minr = max(0, minr - padding)
+            minc = max(0, minc - padding)
+            maxr = min(256, maxr + padding)
+            maxc = min(256, maxc + padding)
+            
+            # 绘制矩形框
+            try:
+                # 尝试使用width参数(PIL较新版本支持)
+                draw.rectangle([(minc, minr), (maxc, maxr)], outline="red", width=2)
+            except TypeError:
+                # 兼容旧版本PIL，通过绘制多个矩形实现粗线框
+                for i in range(2):
+                    draw.rectangle(
+                        [(minc-i, minr-i), (maxc+i, maxr+i)], 
+                        outline="red"
+                    )
 
         return original_image
 
