@@ -1,14 +1,18 @@
 import os 
 from PIL import Image, ImageDraw, ImageTk
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import torch
 from torchvision import transforms
 import numpy as np
-from datetime import datetime  # 用于获取当前时间
+from datetime import datetime
 from model.model_DNANet import DNANet, Res_CBAM_block
 from model.load_param_data import load_param
 from scipy.ndimage import binary_dilation
+import json
+
+# 配置文件路径
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 
 class ImageDisplayApp:
     def __init__(self, root):
@@ -52,35 +56,95 @@ class ImageDisplayApp:
         self.annotated_canvas = tk.Canvas(root, width=300, height=300)
         self.annotated_canvas.grid(row=1, column=3)
 
+        # 加载上次的配置
+        self.load_config()
+        
+        # 在窗口关闭时保存配置
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
+        # 如果有保存的模型路径，自动加载模型
+        if self.model_path and os.path.exists(self.model_path):
+            self.load_model()
+            # 显示当前加载的模型名称
+            model_name = os.path.basename(self.model_path)
+            self.model_status_label = tk.Label(root, text=f"当前模型: {model_name}", fg="green")
+            self.model_status_label.grid(row=3, column=0, columnspan=2, sticky="w")
+        else:
+            self.model_status_label = tk.Label(root, text="未加载模型", fg="red")
+            self.model_status_label.grid(row=3, column=0, columnspan=2, sticky="w")
+
+    def load_config(self):
+        """加载配置文件"""
+        try:
+            if os.path.exists(CONFIG_FILE):
+                with open(CONFIG_FILE, 'r') as f:
+                    config = json.load(f)
+                    self.model_path = config.get("model_path", None)
+            else:
+                self.model_path = None
+        except Exception as e:
+            print(f"加载配置文件出错: {e}")
+            self.model_path = None
+
+    def save_config(self):
+        """保存配置到文件"""
+        try:
+            config = {"model_path": self.model_path}
+            with open(CONFIG_FILE, 'w') as f:
+                json.dump(config, f)
+        except Exception as e:
+            print(f"保存配置文件出错: {e}")
+
+    def on_closing(self):
+        """应用关闭时执行"""
+        self.save_config()
+        self.root.destroy()
+
     def load_model(self):
         if not self.model_path:
-            print("请先选择模型权重文件！")
+            messagebox.showwarning("警告", "请先选择模型权重文件！")
             return None
 
-        # 加载模型参数
-        nb_filter, num_blocks = load_param('three', 'resnet_18')
-        model = DNANet(num_classes=1, input_channels=3, block=Res_CBAM_block, num_blocks=num_blocks, nb_filter=nb_filter, deep_supervision=True)
-        checkpoint = torch.load(self.model_path, map_location=self.device)
+        try:
+            # 加载模型参数
+            nb_filter, num_blocks = load_param('three', 'resnet_18')
+            model = DNANet(num_classes=1, input_channels=3, block=Res_CBAM_block, 
+                          num_blocks=num_blocks, nb_filter=nb_filter, deep_supervision=True)
+            checkpoint = torch.load(self.model_path, map_location=self.device)
 
-        # 加载权重
-        model.load_state_dict(checkpoint['state_dict'])
-        model.to(self.device)
-        model.eval()
-        print(f"模型已加载：{self.model_path}")
-        return model
+            # 加载权重
+            model.load_state_dict(checkpoint['state_dict'])
+            model.to(self.device)
+            model.eval()
+            print(f"模型已加载：{self.model_path}")
+            
+            # 更新模型引用和状态
+            self.model = model
+            self.model_loaded = True
+            
+            return model
+        except Exception as e:
+            messagebox.showerror("错误", f"模型加载失败: {str(e)}")
+            self.model_loaded = False
+            return None
 
     def select_model(self):
         file_path = filedialog.askopenfilename(filetypes=[("Model Files", "*.pth;*.pth.tar")])
         if file_path:
             self.model_path = file_path
             # 加载模型
-            if not self.model_loaded:
-                self.model = self.load_model()
-                self.model_loaded = True
+            self.model = self.load_model()
+            
+            # 更新配置
+            self.save_config()
+            
+            # 更新状态标签
+            model_name = os.path.basename(self.model_path)
+            if hasattr(self, 'model_status_label'):
+                self.model_status_label.config(text=f"当前模型: {model_name}", fg="green")
             else:
-                # 只有模型路径变更时才重新加载
-                if self.model_path != file_path:
-                    self.model = self.load_model()
+                self.model_status_label = tk.Label(self.root, text=f"当前模型: {model_name}", fg="green")
+                self.model_status_label.grid(row=3, column=0, columnspan=2, sticky="w")
 
     def select_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
@@ -219,8 +283,9 @@ class ImageDisplayApp:
         # 保存带红色边界的图像
         annotated_image.save(save_annotated_path)
 
-        print(f"预测结果已保存到: {save_path}")
-        print(f"标注结果已保存到: {save_annotated_path}")
+        messagebox.showinfo("保存成功", 
+                          f"预测结果已保存到: {save_path}\n"
+                          f"标注结果已保存到: {save_annotated_path}")
 
 if __name__ == "__main__":
     root = tk.Tk()
