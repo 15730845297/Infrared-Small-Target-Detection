@@ -1,1 +1,4 @@
-{"model_path": "D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar"}
+{
+    "model_path": "D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar",
+    "last_mode": "image"
+}
