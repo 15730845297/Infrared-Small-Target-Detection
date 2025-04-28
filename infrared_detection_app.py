@@ -35,6 +35,9 @@ class InfraredDetectionApp:
         self.root.title("红外小目标检测系统")
         self.root.geometry("1280x800")
         
+        # 创建预测结果目录
+        self._create_prediction_directories()
+        
         # 检查GPU是否可用
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"使用设备: {self.device}")
@@ -58,6 +61,19 @@ class InfraredDetectionApp:
         
         # 关闭窗口时保存配置
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+    
+    def _create_prediction_directories(self):
+        """创建预测结果保存目录"""
+        try:
+            base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "predicts")
+            images_dir = os.path.join(base_dir, "images")
+            videos_dir = os.path.join(base_dir, "videos")
+            
+            os.makedirs(images_dir, exist_ok=True)
+            os.makedirs(videos_dir, exist_ok=True)
+            logger.info(f"创建预测结果目录: {base_dir}")
+        except Exception as e:
+            logger.error(f"创建预测结果目录失败: {e}")
     
     def create_mode_selection(self):
         """创建模式选择区域"""

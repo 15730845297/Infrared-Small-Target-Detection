@@ -447,17 +447,14 @@ class ImageModeFrame:
             messagebox.showwarning("警告", "请先进行检测")
             return
         
-        # 选择保存目录
-        save_dir = filedialog.askdirectory(title="选择保存目录")
-        if not save_dir:
-            return
-        
         try:
+            # 创建保存目录结构
+            base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "predicts")
+            save_dir = os.path.join(base_dir, "images")
+            os.makedirs(save_dir, exist_ok=True)
+            
             if self.logger:
                 self.logger.info(f"保存检测结果到目录: {save_dir}")
-            
-            # 确保目录存在
-            os.makedirs(save_dir, exist_ok=True)
             
             # 获取文件名（不含扩展名）
             base_filename = os.path.splitext(os.path.basename(self.selected_image))[0]
@@ -476,13 +473,13 @@ class ImageModeFrame:
             result_path = os.path.join(save_dir, result_filename)
             annotated_image.save(result_path)
             
-            self.status_var.set("结果已保存")
+            self.status_var.set(f"结果已保存到 {save_dir}")
             
             if self.logger:
                 self.logger.info(f"预测掩码已保存: {mask_path}")
                 self.logger.info(f"标注结果已保存: {result_path}")
             
-            messagebox.showinfo("保存成功", f"预测掩码已保存为: {mask_filename}\n标注结果已保存为: {result_filename}")
+            messagebox.showinfo("保存成功", f"结果已保存到:\n{save_dir}\n\n预测掩码: {mask_filename}\n标注结果: {result_filename}")
             
         except Exception as e:
             error_msg = f"保存结果失败: {str(e)}"

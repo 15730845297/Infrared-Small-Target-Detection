@@ -601,7 +601,7 @@ class VideoModeFrame:
                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
             
             # 添加目标计数文本
-            cv2.putText(result_image, f"目标数: {target_count}", (10, 30), 
+            cv2.putText(result_image, f"Targets: {target_count}", (10, 30), 
                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             
             return label_image, result_image
@@ -613,7 +613,7 @@ class VideoModeFrame:
             
             # 处理错误，创建错误信息帧
             error_frame = frame.copy()
-            cv2.putText(error_frame, f"处理错误: {str(e)[:50]}", 
+            cv2.putText(error_frame, f"Error: {str(e)[:50]}", 
                        (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             
             # 返回原始帧和错误帧
@@ -771,13 +771,14 @@ class VideoModeFrame:
             messagebox.showwarning("警告", "请先处理视频")
             return
         
-        # 选择保存目录
-        save_dir = filedialog.askdirectory(title="选择保存目录")
-        if not save_dir:
-            return
-        
         try:
             self.status_var.set("正在保存视频...")
+            
+            # 创建保存目录结构
+            base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "predicts")
+            save_dir = os.path.join(base_dir, "videos")
+            os.makedirs(save_dir, exist_ok=True)
+            
             if self.logger:
                 self.logger.info(f"开始保存处理结果到: {save_dir}")
             
@@ -799,10 +800,11 @@ class VideoModeFrame:
                 self.logger.info(f"保存掩码视频到: {label_save_path}")
                 self.logger.info(f"保存结果视频到: {result_save_path}")
             
-            self.status_var.set("视频保存成功")
+            self.status_var.set(f"视频保存成功到 {save_dir}")
             messagebox.showinfo("保存成功", 
-                             f"预测掩码已保存至:\n{os.path.basename(label_save_path)}\n\n"
-                             f"检测结果已保存至:\n{os.path.basename(result_save_path)}")
+                            f"结果已保存到:\n{save_dir}\n\n"
+                            f"预测掩码: {os.path.basename(label_save_path)}\n"
+                            f"检测结果: {os.path.basename(result_save_path)}")
             
         except Exception as e:
             error_msg = f"保存视频失败: {str(e)}"
