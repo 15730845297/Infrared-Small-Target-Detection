@@ -1,5 +1,6 @@
 import cv2  # 确保cv2在最前面导入
 import os
+import json
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
@@ -63,6 +64,10 @@ class VideoModeFrame:
         # 如果已有模型路径，尝试加载
         if self.model_path and os.path.exists(self.model_path):
             self._load_model_thread(self.model_path)
+        
+        # 添加文字区域相关属性
+        self.text_regions = []
+        self.text_regions_loaded = False
     
     def create_ui(self):
         """创建用户界面"""
@@ -152,6 +157,14 @@ class VideoModeFrame:
         # 进度信息标签
         self.progress_info = ttk.Label(self.control_frame, text="0/0")
         self.progress_info.pack(side=tk.RIGHT, padx=5)
+        
+        # 在工具栏添加配置文字区域按钮
+        self.text_region_btn = ttk.Button(
+            self.toolbar, 
+            text="配置排除区域", 
+            command=self.configure_text_regions
+        )
+        self.text_region_btn.pack(side=tk.LEFT, padx=5)
     
     def select_model(self):
         """选择模型文件"""
@@ -516,8 +529,33 @@ class VideoModeFrame:
             self.parent.after(0, lambda: messagebox.showerror("错误", f"{error_msg}\n\n详细信息已记录到日志"))
     
     def process_frame(self, frame):
-        """处理单个视频帧"""
+        """处理单个视频帧，排除配置的文字区域"""
         try:
+            # 确保文字区域配置已加载
+            if not hasattr(self, 'text_regions_loaded') or not self.text_regions_loaded:
+                # 尝试加载配置
+                video_name = os.path.basename(self.video_path)
+                regions_file = os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    "config", "text_regions", f"{video_name}.json"
+                )
+                
+                if os.path.exists(regions_file):
+                    try:
+                        with open(regions_file, 'r') as f:
+                            self.text_regions = json.load(f)
+                        
+                        if self.logger:
+                            self.logger.info(f"加载文字区域配置: {regions_file}, {len(self.text_regions)}个区域")
+                    except Exception as e:
+                        if self.logger:
+                            self.logger.error(f"加载文字区域配置失败: {str(e)}")
+                        self.text_regions = []
+                else:
+                    self.text_regions = []
+                
+                self.text_regions_loaded = True
+            
             # 转换为PIL图像
             pil_image = Image.fromarray(frame)
             
@@ -542,9 +580,20 @@ class VideoModeFrame:
             # 二值化预测结果
             threshold = 0.3
             binary_mask = (prob_map > threshold).astype(np.uint8)
-            
-            # 调整掩码大小为原始帧大小
             mask_resized = cv2.resize(binary_mask * 255, (frame.shape[1], frame.shape[0]))
+            
+            # 应用文字区域排除 - 将配置的区域从掩码中移除
+            if hasattr(self, 'text_regions') and self.text_regions:
+                for x, y, w, h in self.text_regions:
+                    # 确保坐标在有效范围内
+                    x1 = max(0, min(x, mask_resized.shape[1]-1))
+                    y1 = max(0, min(y, mask_resized.shape[0]-1))
+                    x2 = max(0, min(x+w, mask_resized.shape[1]))
+                    y2 = max(0, min(y+h, mask_resized.shape[0]))
+                    
+                    # 在掩码中将文字区域设为0
+                    if x1 < x2 and y1 < y2:
+                        mask_resized[y1:y2, x1:x2] = 0
             
             # 创建标签图像
             mask_bgr = cv2.cvtColor(mask_resized, cv2.COLOR_GRAY2BGR)
@@ -603,6 +652,16 @@ class VideoModeFrame:
             # 添加目标计数文本
             cv2.putText(result_image, f"Targets: {target_count}", (10, 30), 
                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            
+            # 可选：在调试模式下显示排除区域
+            debug_show_text_regions = False  # 设置为True开启调试
+            if debug_show_text_regions and hasattr(self, 'text_regions'):
+                for x, y, w, h in self.text_regions:
+                    # 在结果图像上用黄色虚线标记排除区域
+                    cv2.rectangle(result_image, 
+                                 (max(0, x), max(0, y)), 
+                                 (min(frame.shape[1], x+w), min(frame.shape[0], y+h)), 
+                                 (0, 255, 255), 1)
             
             return label_image, result_image
             
@@ -815,6 +874,274 @@ class VideoModeFrame:
                 self.logger.error(traceback.format_exc())
             
             messagebox.showerror("错误", error_msg)
+    
+    def configure_text_regions(self):
+        """手动配置要排除的文字区域"""
+        if not hasattr(self, 'cap') or self.cap is None:
+            messagebox.showwarning("警告", "请先加载视频")
+            return
+        
+        # 保存当前帧位置
+        current_pos = self.cap.get(cv2.CAP_PROP_POS_FRAMES)
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        ret, frame = self.cap.read()
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES, current_pos)
+        
+        if not ret:
+            messagebox.showerror("错误", "无法读取视频帧")
+            return
+        
+        # 创建配置窗口
+        config_window = tk.Toplevel(self.parent)
+        config_window.title("配置文字排除区域")
+        config_window.geometry("900x700")
+        
+        # 说明文本
+        instruction_text = "使用鼠标拖动创建矩形区域来排除视频中的文字、时间戳等干扰区域。\n右键点击已创建的区域可将其删除。"
+        ttk.Label(config_window, text=instruction_text).pack(pady=10)
+        
+        # 帧选择栏
+        frame_select_frame = ttk.Frame(config_window)
+        frame_select_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        ttk.Label(frame_select_frame, text="选择视频帧:").pack(side=tk.LEFT)
+        
+        # 帧选择滑块
+        frame_var = tk.IntVar(value=0)
+        frame_slider = ttk.Scale(
+            frame_select_frame,
+            from_=0,
+            to=self.frame_count-1,
+            orient=tk.HORIZONTAL,
+            variable=frame_var,
+            length=400
+        )
+        frame_slider.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        
+        frame_label = ttk.Label(frame_select_frame, text=f"0/{self.frame_count-1}")
+        frame_label.pack(side=tk.LEFT, padx=5)
+        
+        # 创建画布显示当前帧
+        canvas_frame = ttk.Frame(config_window)
+        canvas_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # 计算合适的画布大小
+        max_width, max_height = 800, 500
+        if frame.shape[1] > max_width or frame.shape[0] > max_height:
+            scale = min(max_width / frame.shape[1], max_height / frame.shape[0])
+            canvas_width = int(frame.shape[1] * scale)
+            canvas_height = int(frame.shape[0] * scale)
+        else:
+            canvas_width, canvas_height = frame.shape[1], frame.shape[0]
+        
+        canvas = tk.Canvas(
+            canvas_frame, 
+            width=canvas_width, 
+            height=canvas_height, 
+            bg="black"
+        )
+        canvas.pack(fill=tk.BOTH, expand=True)
+        
+        # 存储当前配置
+        regions = []
+        video_name = os.path.basename(self.video_path)
+        config_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "config", "text_regions"
+        )
+        os.makedirs(config_dir, exist_ok=True)
+        
+        regions_file = os.path.join(config_dir, f"{video_name}.json")
+        
+        # 加载已有配置
+        if os.path.exists(regions_file):
+            try:
+                with open(regions_file, 'r') as f:
+                    regions = json.load(f)
+                if self.logger:
+                    self.logger.info(f"加载文字区域配置: {regions_file}, {len(regions)}个区域")
+            except Exception as e:
+                if self.logger:
+                    self.logger.error(f"加载文字区域配置失败: {str(e)}")
+                regions = []
+        
+        # 图像缩放比例
+        scale_x = canvas_width / frame.shape[1]
+        scale_y = canvas_height / frame.shape[0]
+        
+        # 记录绘制的矩形
+        rect_objects = []
+        
+        def update_frame(frame_idx):
+            """更新画布显示的帧"""
+            nonlocal rect_objects
+            
+            # 清除当前矩形
+            for rect in rect_objects:
+                canvas.delete(rect)
+            rect_objects = []
+            
+            # 设置视频位置并读取
+            self.cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+            ret, frame = self.cap.read()
+            
+            if ret:
+                # 调整图像大小
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frame_resized = cv2.resize(frame_rgb, (canvas_width, canvas_height))
+                
+                # 显示图像
+                img = Image.fromarray(frame_resized)
+                img_tk = ImageTk.PhotoImage(image=img)
+                canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
+                canvas.image = img_tk  # 保持引用
+                
+                # 绘制已有区域
+                for i, region in enumerate(regions):
+                    # 原始视频坐标转换为画布坐标
+                    x, y, w, h = region
+                    canvas_x = x * scale_x
+                    canvas_y = y * scale_y
+                    canvas_w = w * scale_x
+                    canvas_h = h * scale_y
+                    
+                    # 绘制矩形和标签
+                    rect = canvas.create_rectangle(
+                        canvas_x, canvas_y, canvas_x+canvas_w, canvas_y+canvas_h,
+                        outline="yellow", width=2, tags=f"region_{i}"
+                    )
+                    text = canvas.create_text(
+                        canvas_x+canvas_w//2, canvas_y+canvas_h//2, 
+                        text=str(i+1), fill="yellow", tags=f"region_{i}"
+                    )
+                    rect_objects.extend([rect, text])
+                
+                # 更新帧标签
+                frame_label.config(text=f"{frame_idx}/{self.frame_count-1}")
+            
+            # 重置视频位置
+            self.cap.set(cv2.CAP_PROP_POS_FRAMES, current_pos)
+        
+        # 帧滑块更新函数
+        def on_frame_change(value):
+            frame_idx = int(float(value))
+            frame_var.set(frame_idx)
+            update_frame(frame_idx)
+        
+        frame_slider.config(command=on_frame_change)
+        
+        # 初始化显示第一帧
+        update_frame(0)
+        
+        # 区域绘制变量
+        start_x, start_y = 0, 0
+        current_rect = None
+        
+        # 鼠标事件处理
+        def on_press(event):
+            nonlocal start_x, start_y, current_rect
+            start_x, start_y = event.x, event.y
+            current_rect = canvas.create_rectangle(
+                start_x, start_y, start_x, start_y, 
+                outline="red", width=2, tags="new_region"
+            )
+        
+        def on_drag(event):
+            nonlocal current_rect
+            if current_rect:
+                x, y = min(start_x, event.x), min(start_y, event.y)
+                w, h = abs(event.x - start_x), abs(event.y - start_y)
+                canvas.coords(current_rect, x, y, x+w, y+h)
+        
+        def on_release(event):
+            nonlocal current_rect, regions, rect_objects
+            if current_rect:
+                x1, y1, x2, y2 = canvas.coords(current_rect)
+                x, y = min(x1, x2), min(y1, y2)
+                w, h = abs(x2 - x1), abs(y2 - y1)
+                
+                canvas.delete(current_rect)
+                current_rect = None
+                
+                if w > 5 and h > 5:  # 避免太小的区域
+                    # 转换回原始视频坐标
+                    orig_x = int(x / scale_x)
+                    orig_y = int(y / scale_y)
+                    orig_w = int(w / scale_x)
+                    orig_h = int(h / scale_y)
+                    
+                    # 添加新区域
+                    regions.append([orig_x, orig_y, orig_w, orig_h])
+                    
+                    # 在当前画布上重新绘制所有区域
+                    update_frame(frame_var.get())
+        
+        def on_right_click(event):
+            nonlocal regions, rect_objects
+            
+            # 检查是否点击到任何区域
+            for i, region in enumerate(regions):
+                x, y, w, h = region
+                canvas_x = x * scale_x
+                canvas_y = y * scale_y
+                canvas_w = w * scale_x
+                canvas_h = h * scale_y
+                
+                if (canvas_x <= event.x <= canvas_x+canvas_w and 
+                    canvas_y <= event.y <= canvas_y+canvas_h):
+                    # 删除该区域
+                    regions.pop(i)
+                    
+                    # 重新绘制
+                    update_frame(frame_var.get())
+                    break
+        
+        # 绑定鼠标事件
+        canvas.bind("<ButtonPress-1>", on_press)
+        canvas.bind("<B1-Motion>", on_drag)
+        canvas.bind("<ButtonRelease-1>", on_release)
+        canvas.bind("<ButtonPress-3>", on_right_click)
+        
+        # 按钮区域
+        button_frame = ttk.Frame(config_window)
+        button_frame.pack(fill=tk.X, padx=10, pady=10)
+        
+        # 保存配置
+        def save_regions():
+            try:
+                with open(regions_file, 'w') as f:
+                    json.dump(regions, f)
+                
+                # 更新应用程序中的配置
+                self.text_regions = regions
+                self.text_regions_loaded = True
+                
+                if self.logger:
+                    self.logger.info(f"保存文字区域配置: {regions_file}, {len(regions)}个区域")
+                
+                messagebox.showinfo("成功", f"已保存{len(regions)}个文字排除区域")
+                config_window.destroy()
+            except Exception as e:
+                if self.logger:
+                    self.logger.error(f"保存文字区域失败: {str(e)}")
+                messagebox.showerror("错误", f"保存失败: {str(e)}")
+        
+        # 清除所有区域
+        def clear_regions():
+            nonlocal regions, rect_objects
+            if regions and messagebox.askyesno("确认", "确定要清除所有排除区域吗？"):
+                regions = []
+                update_frame(frame_var.get())
+        
+        ttk.Button(button_frame, text="清除所有区域", command=clear_regions).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="取消", command=config_window.destroy).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(button_frame, text="保存配置", command=save_regions).pack(side=tk.RIGHT, padx=5)
+        
+        # 初始化类属性
+        if not hasattr(self, 'text_regions'):
+            self.text_regions = regions
+        if not hasattr(self, 'text_regions_loaded'):
+            self.text_regions_loaded = True
     
     def on_closing(self):
         """关闭时的清理操作"""
