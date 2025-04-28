@@ -1,0 +1,45 @@
+2025-04-28 12:39:02,222 - MainApp - INFO - 日志记录已启动，日志文件：d:\Github\Infrared-Small-Target-Detection\logs\MainApp_20250428_123902.log
+2025-04-28 12:39:02,222 - MainApp - INFO - OpenCV 版本: 4.11.0
+2025-04-28 12:39:02,222 - MainApp - INFO - OpenCV 路径: C:\Users\Nero\.conda\envs\Infrared-Small-Target-Detection\lib\site-packages\cv2\__init__.py
+2025-04-28 12:39:02,944 - MainApp - INFO - 使用设备: cuda
+2025-04-28 12:39:02,951 - MainApp - INFO - 切换到图像模式
+2025-04-28 12:39:02,956 - MainApp - INFO - 开始加载模型: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-04-28 12:39:03,158 - MainApp - INFO - 更新模型路径: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-04-28 12:39:03,158 - MainApp - INFO - 模型加载成功: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-04-28 12:39:04,405 - MainApp - INFO - 用户打开日志文件: d:\Github\Infrared-Small-Target-Detection\logs\MainApp_20250428_123902.log
+2025-04-28 12:39:17,936 - MainApp - INFO - 选择图片: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/Misc_117.png
+2025-04-28 12:39:17,953 - MainApp - INFO - 找到真实标签: d:\Github\Infrared-Small-Target-Detection\dataset\NUDT-SIRST\masks\Misc_117.png
+2025-04-28 12:39:19,603 - MainApp - INFO - 开始检测图像: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/Misc_117.png
+2025-04-28 12:39:19,800 - MainApp - INFO - 图像检测完成: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/Misc_117.png
+2025-04-28 12:39:29,924 - MainApp - INFO - 切换到视频模式
+2025-04-28 12:39:29,931 - MainApp - INFO - 视频模式初始化，使用设备：cuda
+2025-04-28 12:39:29,935 - MainApp - INFO - 开始加载模型: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-04-28 12:39:30,052 - MainApp - INFO - 更新模型路径: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-04-28 12:39:30,052 - MainApp - INFO - 模型加载成功: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-04-28 12:39:39,999 - MainApp - INFO - 选择视频文件: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/20190925_200805_1_9.mp4
+2025-04-28 12:39:40,000 - MainApp - INFO - 开始加载视频: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/20190925_200805_1_9.mp4
+2025-04-28 12:39:40,004 - MainApp - INFO - 视频信息 - 帧数: 475, FPS: 25.0, 分辨率: 640x512
+2025-04-28 12:39:44,096 - MainApp - INFO - 停止视频播放
+2025-04-28 12:39:44,097 - MainApp - INFO - 开始处理视频: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/20190925_200805_1_9.mp4
+2025-04-28 12:39:44,097 - MainApp - INFO - 视频处理线程启动，处理视频: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/20190925_200805_1_9.mp4
+2025-04-28 12:39:44,098 - MainApp - INFO - 创建临时目录: C:\Users\Nero\AppData\Local\Temp\tmp253va9fq
+2025-04-28 12:39:44,098 - MainApp - INFO - 临时标签视频路径: C:\Users\Nero\AppData\Local\Temp\tmp253va9fq\temp_label.mp4
+2025-04-28 12:39:44,098 - MainApp - INFO - 临时结果视频路径: C:\Users\Nero\AppData\Local\Temp\tmp253va9fq\temp_result.mp4
+2025-04-28 12:39:44,943 - MainApp - INFO - 视频处理进度: 6.3% (30/475)
+2025-04-28 12:39:45,722 - MainApp - INFO - 视频处理进度: 12.6% (60/475)
+2025-04-28 12:39:46,500 - MainApp - INFO - 视频处理进度: 18.9% (90/475)
+2025-04-28 12:39:47,279 - MainApp - INFO - 视频处理进度: 25.3% (120/475)
+2025-04-28 12:39:48,053 - MainApp - INFO - 视频处理进度: 31.6% (150/475)
+2025-04-28 12:39:48,832 - MainApp - INFO - 视频处理进度: 37.9% (180/475)
+2025-04-28 12:39:49,609 - MainApp - INFO - 视频处理进度: 44.2% (210/475)
+2025-04-28 12:39:50,392 - MainApp - INFO - 视频处理进度: 50.5% (240/475)
+2025-04-28 12:39:51,171 - MainApp - INFO - 视频处理进度: 56.8% (270/475)
+2025-04-28 12:39:51,953 - MainApp - INFO - 视频处理进度: 63.2% (300/475)
+2025-04-28 12:39:52,739 - MainApp - INFO - 视频处理进度: 69.5% (330/475)
+2025-04-28 12:39:53,520 - MainApp - INFO - 视频处理进度: 75.8% (360/475)
+2025-04-28 12:39:54,299 - MainApp - INFO - 视频处理进度: 82.1% (390/475)
+2025-04-28 12:39:55,079 - MainApp - INFO - 视频处理进度: 88.4% (420/475)
+2025-04-28 12:39:55,861 - MainApp - INFO - 视频处理进度: 94.7% (450/475)
+2025-04-28 12:39:56,512 - MainApp - INFO - 视频处理进度: 100.0% (475/475)
+2025-04-28 12:39:56,517 - MainApp - INFO - 视频处理完成，共处理 475/475 帧，错误帧: 0
+2025-04-28 12:40:02,963 - MainApp - INFO - 应用程序关闭
