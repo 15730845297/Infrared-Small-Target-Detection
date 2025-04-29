@@ -170,7 +170,7 @@ class VideoModeFrame:
         """选择模型文件"""
         file_path = filedialog.askopenfilename(
             title="选择模型文件",
-            filetypes=[("PyTorch模型", "*.pth"), ("所有文件", "*.*")],
+            filetypes=[("PyTorch模型", "*.tar"), ("所有文件", "*.*")],
             initialdir=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "result")
         )
         
