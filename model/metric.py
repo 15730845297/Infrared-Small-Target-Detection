@@ -61,44 +61,59 @@ class PD_FA():
         self.target= np.zeros(self.bins + 1)
     def update(self, preds, labels):
 
+        # 获取批次大小
+        batch_size = preds.size(0)
+        
         for iBin in range(self.bins+1):
             score_thresh = iBin * (255/self.bins)
-            predits  = np.array((preds > score_thresh).cpu()).astype('int64')
-            predits  = np.reshape (predits,  (256,256))
-            labelss = np.array((labels).cpu()).astype('int64') # P
-            labelss = np.reshape (labelss , (256,256))
+            predits = np.array((preds > score_thresh).cpu()).astype('int64')
+            labelss = np.array((labels).cpu()).astype('int64')
+            
+            # 处理每个批次中的图像
+            for b in range(batch_size):
+                # 提取单个图像
+                pred_img = predits[b].reshape(256, 256)
+                label_img = labelss[b].reshape(256, 256)
+                
+                image = measure.label(pred_img, connectivity=2)
+                coord_image = measure.regionprops(image)
+                label = measure.label(label_img, connectivity=2)
+                coord_label = measure.regionprops(label)
 
-            image = measure.label(predits, connectivity=2)
-            coord_image = measure.regionprops(image)
-            label = measure.label(labelss , connectivity=2)
-            coord_label = measure.regionprops(label)
+                self.target[iBin] += len(coord_label)
+                self.image_area_total = []
+                self.image_area_match = []
+                self.distance_match = []
+                self.dismatch = []
 
-            self.target[iBin]    += len(coord_label)
-            self.image_area_total = []
-            self.image_area_match = []
-            self.distance_match   = []
-            self.dismatch         = []
+                for K in range(len(coord_image)):
+                    area_image = np.array(coord_image[K].area)
+                    self.image_area_total.append(area_image)
 
-            for K in range(len(coord_image)):
-                area_image = np.array(coord_image[K].area)
-                self.image_area_total.append(area_image)
+                for i in range(len(coord_label)):
+                    centroid_label = np.array(list(coord_label[i].centroid))
+                    
+                    # 创建副本以避免在迭代过程中修改列表
+                    coord_image_copy = list(coord_image)
+                    matched = False
+                    
+                    for m in range(len(coord_image_copy)):
+                        centroid_image = np.array(list(coord_image_copy[m].centroid))
+                        distance = np.linalg.norm(centroid_image - centroid_label)
+                        area_image = np.array(coord_image_copy[m].area)
+                        if distance < 3:
+                            self.distance_match.append(distance)
+                            self.image_area_match.append(area_image)
+                            matched = True
+                            
+                            # 从列表中移除已匹配的项
+                            if m < len(coord_image):
+                                coord_image.pop(m)
+                            break
 
-            for i in range(len(coord_label)):
-                centroid_label = np.array(list(coord_label[i].centroid))
-                for m in range(len(coord_image)):
-                    centroid_image = np.array(list(coord_image[m].centroid))
-                    distance = np.linalg.norm(centroid_image - centroid_label)
-                    area_image = np.array(coord_image[m].area)
-                    if distance < 3:
-                        self.distance_match.append(distance)
-                        self.image_area_match.append(area_image)
-
-                        del coord_image[m]
-                        break
-
-            self.dismatch = [x for x in self.image_area_total if x not in self.image_area_match]
-            self.FA[iBin]+=np.sum(self.dismatch)
-            self.PD[iBin]+=len(self.distance_match)
+                self.dismatch = [x for x in self.image_area_total if x not in self.image_area_match]
+                self.FA[iBin] += np.sum(self.dismatch)
+                self.PD[iBin] += len(self.distance_match)
 
     def get(self,img_num):
 

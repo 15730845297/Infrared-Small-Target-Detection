@@ -49,7 +49,7 @@ def parse_args():
                         help='裁剪图像大小（数据增强用）')
 
     # ---------- 训练超参数 ----------
-    parser.add_argument('--epochs', type=int, default=200, metavar='N',
+    parser.add_argument('--epochs', type=int, default=10, metavar='N',
                         help='训练总轮数')
     parser.add_argument('--start_epoch', type=int, default=0,
                         metavar='N', help='起始轮数（用于恢复训练）')
