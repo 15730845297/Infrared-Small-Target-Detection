@@ -614,45 +614,26 @@ class VideoModeFrame:
                     
                 target_count += 1
                 
-                # 计算轮廓的矩
-                M = cv2.moments(contour)
+                # 获取轮廓的边界矩形
+                x, y, w, h = cv2.boundingRect(contour)
                 
-                # 计算质心
-                if M["m00"] != 0:
-                    cX = int(M["m10"] / M["m00"])
-                    cY = int(M["m01"] / M["m00"])
-                else:
-                    x, y, w, h = cv2.boundingRect(contour)
-                    cX = x + w // 2
-                    cY = y + h // 2
-                
-                # 计算轮廓面积和适当的边框大小
+                # 计算轮廓面积和适当的边距
                 area = cv2.contourArea(contour)
-                min_box_size = max(20, int(np.sqrt(area) * 3))
+                margin = max(10, int(np.sqrt(area) * 0.5))
                 
-                # 确保最小大小不会太小
-                min_box_size = max(min_box_size, int(frame.shape[1] * 0.02))  # 至少为图像宽度的2%
+                # A: 确保边距不会太小也不会太大
+                margin = min(margin, 50)  # 最大边距
+                margin = max(margin, int(frame.shape[1] * 0.01))  # 至少为图像宽度的1%
                 
-                # 以质心为中心创建边界框
-                half_size = min_box_size // 2
+                # B: 基于轮廓的实际边界扩展边框，四周留出边距
+                left = max(0, x - margin)
+                top = max(0, y - margin)
+                right = min(frame.shape[1], x + w + margin)
+                bottom = min(frame.shape[0], y + h + margin)
                 
-                # 确保边界框不超出图像边界
-                left = max(0, cX - half_size)
-                top = max(0, cY - half_size)
-                right = min(frame.shape[1], cX + half_size)
-                bottom = min(frame.shape[0], cY + half_size)
-                
-                # 绘制边界框，使用红色
+                # 绘制边界框，使用蓝色
                 cv2.rectangle(result_image, (left, top), (right, bottom), (255, 0, 0), 2)
                 
-                # 在边界框附近标注目标编号
-                cv2.putText(result_image, f"{target_count}", (left, top-5), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
-            
-            # 添加目标计数文本
-            cv2.putText(result_image, f"Targets: {target_count}", (10, 30), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            
             # 可选：在调试模式下显示排除区域
             debug_show_text_regions = False  # 设置为True开启调试
             if debug_show_text_regions and hasattr(self, 'text_regions'):
@@ -662,7 +643,7 @@ class VideoModeFrame:
                                  (max(0, x), max(0, y)), 
                                  (min(frame.shape[1], x+w), min(frame.shape[0], y+h)), 
                                  (0, 255, 255), 1)
-            
+        
             return label_image, result_image
             
         except Exception as e:

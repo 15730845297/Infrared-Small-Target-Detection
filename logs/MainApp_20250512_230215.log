@@ -1,0 +1,32 @@
+2025-05-12 23:02:15,927 - MainApp - INFO - 日志记录已启动，日志文件：d:\Github\Infrared-Small-Target-Detection\logs\MainApp_20250512_230215.log
+2025-05-12 23:02:15,928 - MainApp - INFO - OpenCV 版本: 4.11.0
+2025-05-12 23:02:15,928 - MainApp - INFO - OpenCV 路径: C:\Users\Nero\.conda\envs\Infrared-Small-Target-Detection\lib\site-packages\cv2\__init__.py
+2025-05-12 23:02:16,685 - MainApp - INFO - 创建预测结果目录: d:\Github\Infrared-Small-Target-Detection\predicts
+2025-05-12 23:02:16,704 - MainApp - INFO - 使用设备: cuda
+2025-05-12 23:02:16,712 - MainApp - INFO - 切换到图像模式
+2025-05-12 23:02:16,717 - MainApp - INFO - 开始加载模型: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:02:16,928 - MainApp - INFO - 更新模型路径: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:02:16,928 - MainApp - INFO - 模型加载成功: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:02:18,473 - MainApp - INFO - 切换到视频模式
+2025-05-12 23:02:18,484 - MainApp - INFO - 视频模式初始化，使用设备：cuda
+2025-05-12 23:02:18,490 - MainApp - INFO - 开始加载模型: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:02:18,608 - MainApp - INFO - 更新模型路径: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:02:18,608 - MainApp - INFO - 模型加载成功: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:02:24,901 - MainApp - INFO - 选择视频文件: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/3700000000002_153514_1.mp4
+2025-05-12 23:02:24,902 - MainApp - INFO - 开始加载视频: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/3700000000002_153514_1.mp4
+2025-05-12 23:02:24,906 - MainApp - INFO - 视频信息 - 帧数: 1500, FPS: 25.0, 分辨率: 640x512
+2025-05-12 23:02:25,577 - MainApp - INFO - 停止视频播放
+2025-05-12 23:02:25,577 - MainApp - INFO - 开始处理视频: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/3700000000002_153514_1.mp4
+2025-05-12 23:02:25,578 - MainApp - INFO - 视频处理线程启动，处理视频: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/3700000000002_153514_1.mp4
+2025-05-12 23:02:25,579 - MainApp - INFO - 创建临时目录: C:\Users\Nero\AppData\Local\Temp\tmphwlkuu3m
+2025-05-12 23:02:25,579 - MainApp - INFO - 临时标签视频路径: C:\Users\Nero\AppData\Local\Temp\tmphwlkuu3m\temp_label.mp4
+2025-05-12 23:02:25,579 - MainApp - INFO - 临时结果视频路径: C:\Users\Nero\AppData\Local\Temp\tmphwlkuu3m\temp_result.mp4
+2025-05-12 23:02:26,563 - MainApp - INFO - 视频处理进度: 2.0% (30/1500)
+2025-05-12 23:02:27,343 - MainApp - INFO - 视频处理进度: 4.0% (60/1500)
+2025-05-12 23:02:28,126 - MainApp - INFO - 视频处理进度: 6.0% (90/1500)
+2025-05-12 23:02:28,908 - MainApp - INFO - 视频处理进度: 8.0% (120/1500)
+2025-05-12 23:02:29,692 - MainApp - INFO - 视频处理进度: 10.0% (150/1500)
+2025-05-12 23:02:30,473 - MainApp - INFO - 视频处理进度: 12.0% (180/1500)
+2025-05-12 23:02:31,259 - MainApp - INFO - 视频处理进度: 14.0% (210/1500)
+2025-05-12 23:02:32,051 - MainApp - INFO - 视频处理进度: 16.0% (240/1500)
+2025-05-12 23:02:32,456 - MainApp - INFO - 应用程序关闭

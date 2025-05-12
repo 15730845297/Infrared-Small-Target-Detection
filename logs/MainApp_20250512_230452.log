@@ -1,0 +1,55 @@
+2025-05-12 23:04:52,613 - MainApp - INFO - 日志记录已启动，日志文件：d:\Github\Infrared-Small-Target-Detection\logs\MainApp_20250512_230452.log
+2025-05-12 23:04:52,614 - MainApp - INFO - OpenCV 版本: 4.11.0
+2025-05-12 23:04:52,614 - MainApp - INFO - OpenCV 路径: C:\Users\Nero\.conda\envs\Infrared-Small-Target-Detection\lib\site-packages\cv2\__init__.py
+2025-05-12 23:04:53,361 - MainApp - INFO - 创建预测结果目录: d:\Github\Infrared-Small-Target-Detection\predicts
+2025-05-12 23:04:53,379 - MainApp - INFO - 使用设备: cuda
+2025-05-12 23:04:53,387 - MainApp - INFO - 切换到图像模式
+2025-05-12 23:04:53,392 - MainApp - INFO - 开始加载模型: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:04:53,601 - MainApp - INFO - 更新模型路径: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:04:53,601 - MainApp - INFO - 模型加载成功: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:04:54,771 - MainApp - INFO - 切换到视频模式
+2025-05-12 23:04:54,781 - MainApp - INFO - 视频模式初始化，使用设备：cuda
+2025-05-12 23:04:54,787 - MainApp - INFO - 开始加载模型: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:04:54,913 - MainApp - INFO - 更新模型路径: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:04:54,913 - MainApp - INFO - 模型加载成功: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-12 23:04:57,339 - MainApp - INFO - 选择视频文件: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/3700000000002_153514_1.mp4
+2025-05-12 23:04:57,340 - MainApp - INFO - 开始加载视频: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/3700000000002_153514_1.mp4
+2025-05-12 23:04:57,344 - MainApp - INFO - 视频信息 - 帧数: 1500, FPS: 25.0, 分辨率: 640x512
+2025-05-12 23:04:57,832 - MainApp - INFO - 停止视频播放
+2025-05-12 23:04:57,832 - MainApp - INFO - 开始处理视频: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/3700000000002_153514_1.mp4
+2025-05-12 23:04:57,833 - MainApp - INFO - 视频处理线程启动，处理视频: D:/Github/Infrared-Small-Target-Detection/dataset/Anti-UAV410/3700000000002_153514_1.mp4
+2025-05-12 23:04:57,836 - MainApp - INFO - 创建临时目录: C:\Users\Nero\AppData\Local\Temp\tmp5wv3rpcl
+2025-05-12 23:04:57,836 - MainApp - INFO - 临时标签视频路径: C:\Users\Nero\AppData\Local\Temp\tmp5wv3rpcl\temp_label.mp4
+2025-05-12 23:04:57,836 - MainApp - INFO - 临时结果视频路径: C:\Users\Nero\AppData\Local\Temp\tmp5wv3rpcl\temp_result.mp4
+2025-05-12 23:04:58,837 - MainApp - INFO - 视频处理进度: 2.0% (30/1500)
+2025-05-12 23:04:59,623 - MainApp - INFO - 视频处理进度: 4.0% (60/1500)
+2025-05-12 23:05:00,415 - MainApp - INFO - 视频处理进度: 6.0% (90/1500)
+2025-05-12 23:05:01,205 - MainApp - INFO - 视频处理进度: 8.0% (120/1500)
+2025-05-12 23:05:01,994 - MainApp - INFO - 视频处理进度: 10.0% (150/1500)
+2025-05-12 23:05:02,778 - MainApp - INFO - 视频处理进度: 12.0% (180/1500)
+2025-05-12 23:05:03,562 - MainApp - INFO - 视频处理进度: 14.0% (210/1500)
+2025-05-12 23:05:04,350 - MainApp - INFO - 视频处理进度: 16.0% (240/1500)
+2025-05-12 23:05:05,135 - MainApp - INFO - 视频处理进度: 18.0% (270/1500)
+2025-05-12 23:05:05,926 - MainApp - INFO - 视频处理进度: 20.0% (300/1500)
+2025-05-12 23:05:06,718 - MainApp - INFO - 视频处理进度: 22.0% (330/1500)
+2025-05-12 23:05:07,501 - MainApp - INFO - 视频处理进度: 24.0% (360/1500)
+2025-05-12 23:05:08,285 - MainApp - INFO - 视频处理进度: 26.0% (390/1500)
+2025-05-12 23:05:09,070 - MainApp - INFO - 视频处理进度: 28.0% (420/1500)
+2025-05-12 23:05:09,856 - MainApp - INFO - 视频处理进度: 30.0% (450/1500)
+2025-05-12 23:05:10,642 - MainApp - INFO - 视频处理进度: 32.0% (480/1500)
+2025-05-12 23:05:11,428 - MainApp - INFO - 视频处理进度: 34.0% (510/1500)
+2025-05-12 23:05:12,216 - MainApp - INFO - 视频处理进度: 36.0% (540/1500)
+2025-05-12 23:05:13,006 - MainApp - INFO - 视频处理进度: 38.0% (570/1500)
+2025-05-12 23:05:13,799 - MainApp - INFO - 视频处理进度: 40.0% (600/1500)
+2025-05-12 23:05:14,589 - MainApp - INFO - 视频处理进度: 42.0% (630/1500)
+2025-05-12 23:05:15,373 - MainApp - INFO - 视频处理进度: 44.0% (660/1500)
+2025-05-12 23:05:16,158 - MainApp - INFO - 视频处理进度: 46.0% (690/1500)
+2025-05-12 23:05:16,946 - MainApp - INFO - 视频处理进度: 48.0% (720/1500)
+2025-05-12 23:05:17,731 - MainApp - INFO - 视频处理进度: 50.0% (750/1500)
+2025-05-12 23:05:18,521 - MainApp - INFO - 视频处理进度: 52.0% (780/1500)
+2025-05-12 23:05:19,311 - MainApp - INFO - 视频处理进度: 54.0% (810/1500)
+2025-05-12 23:05:20,101 - MainApp - INFO - 视频处理进度: 56.0% (840/1500)
+2025-05-12 23:05:20,887 - MainApp - INFO - 视频处理进度: 58.0% (870/1500)
+2025-05-12 23:05:21,678 - MainApp - INFO - 视频处理进度: 60.0% (900/1500)
+2025-05-12 23:05:22,477 - MainApp - INFO - 视频处理进度: 62.0% (930/1500)
+2025-05-12 23:05:22,872 - MainApp - INFO - 应用程序关闭
