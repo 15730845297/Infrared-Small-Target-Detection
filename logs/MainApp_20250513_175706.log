@@ -1,0 +1,42 @@
+2025-05-13 17:57:06,661 - MainApp - INFO - 日志记录已启动，日志文件：d:\Github\Infrared-Small-Target-Detection\logs\MainApp_20250513_175706.log
+2025-05-13 17:57:06,661 - MainApp - INFO - OpenCV 版本: 4.11.0
+2025-05-13 17:57:06,661 - MainApp - INFO - OpenCV 路径: C:\Users\Nero\.conda\envs\Infrared-Small-Target-Detection\lib\site-packages\cv2\__init__.py
+2025-05-13 17:57:07,490 - MainApp - INFO - 创建预测结果目录: d:\Github\Infrared-Small-Target-Detection\predicts
+2025-05-13 17:57:07,509 - MainApp - INFO - 使用设备: cuda
+2025-05-13 17:57:07,519 - MainApp - INFO - 切换到图像模式
+2025-05-13 17:57:07,525 - MainApp - INFO - 开始加载模型: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-13 17:57:07,726 - MainApp - INFO - 更新模型路径: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-13 17:57:07,726 - MainApp - INFO - 模型加载成功: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-13 17:57:39,170 - MainApp - INFO - 选择图片: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/Misc_125.png
+2025-05-13 17:57:39,188 - MainApp - INFO - 找到真实标签: d:\Github\Infrared-Small-Target-Detection\dataset\NUDT-SIRST\masks\Misc_125.png
+2025-05-13 17:57:39,800 - MainApp - INFO - 开始检测图像: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/Misc_125.png
+2025-05-13 17:57:40,005 - MainApp - INFO - 图像检测完成: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/Misc_125.png
+2025-05-13 17:57:40,903 - MainApp - INFO - 保存检测结果到目录: d:\Github\Infrared-Small-Target-Detection\predicts\images
+2025-05-13 17:57:40,913 - MainApp - INFO - 预测掩码已保存: d:\Github\Infrared-Small-Target-Detection\predicts\images\Misc_125_mask_20250513_175740.png
+2025-05-13 17:57:40,913 - MainApp - INFO - 标注结果已保存: d:\Github\Infrared-Small-Target-Detection\predicts\images\Misc_125_result_20250513_175740.png
+2025-05-13 17:57:49,421 - MainApp - INFO - 选择图片: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/000312.png
+2025-05-13 17:57:49,425 - MainApp - INFO - 找到真实标签: d:\Github\Infrared-Small-Target-Detection\dataset\NUDT-SIRST\masks\000312.png
+2025-05-13 17:57:49,935 - MainApp - INFO - 开始检测图像: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/000312.png
+2025-05-13 17:57:49,991 - MainApp - INFO - 图像检测完成: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/000312.png
+2025-05-13 17:57:51,261 - MainApp - INFO - 保存检测结果到目录: d:\Github\Infrared-Small-Target-Detection\predicts\images
+2025-05-13 17:57:51,273 - MainApp - INFO - 预测掩码已保存: d:\Github\Infrared-Small-Target-Detection\predicts\images\000312_mask_20250513_175751.png
+2025-05-13 17:57:51,273 - MainApp - INFO - 标注结果已保存: d:\Github\Infrared-Small-Target-Detection\predicts\images\000312_result_20250513_175751.png
+2025-05-13 17:57:59,748 - MainApp - INFO - 选择图片: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/000707.png
+2025-05-13 17:57:59,752 - MainApp - INFO - 找到真实标签: d:\Github\Infrared-Small-Target-Detection\dataset\NUDT-SIRST\masks\000707.png
+2025-05-13 17:58:00,271 - MainApp - INFO - 开始检测图像: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/000707.png
+2025-05-13 17:58:00,324 - MainApp - INFO - 图像检测完成: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/000707.png
+2025-05-13 17:58:18,263 - MainApp - INFO - 选择图片: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/000665.png
+2025-05-13 17:58:18,267 - MainApp - INFO - 找到真实标签: d:\Github\Infrared-Small-Target-Detection\dataset\NUDT-SIRST\masks\000665.png
+2025-05-13 17:58:18,710 - MainApp - INFO - 开始检测图像: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/000665.png
+2025-05-13 17:58:18,761 - MainApp - INFO - 图像检测完成: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/000665.png
+2025-05-13 17:58:19,532 - MainApp - INFO - 保存检测结果到目录: d:\Github\Infrared-Small-Target-Detection\predicts\images
+2025-05-13 17:58:19,543 - MainApp - INFO - 预测掩码已保存: d:\Github\Infrared-Small-Target-Detection\predicts\images\000665_mask_20250513_175819.png
+2025-05-13 17:58:19,544 - MainApp - INFO - 标注结果已保存: d:\Github\Infrared-Small-Target-Detection\predicts\images\000665_result_20250513_175819.png
+2025-05-13 17:58:27,686 - MainApp - INFO - 选择图片: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/001101.png
+2025-05-13 17:58:27,689 - MainApp - INFO - 找到真实标签: d:\Github\Infrared-Small-Target-Detection\dataset\NUDT-SIRST\masks\001101.png
+2025-05-13 17:58:28,447 - MainApp - INFO - 开始检测图像: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/001101.png
+2025-05-13 17:58:28,497 - MainApp - INFO - 图像检测完成: D:/Github/Infrared-Small-Target-Detection/dataset/NUDT-SIRST/images/001101.png
+2025-05-13 17:58:30,398 - MainApp - INFO - 保存检测结果到目录: d:\Github\Infrared-Small-Target-Detection\predicts\images
+2025-05-13 17:58:30,411 - MainApp - INFO - 预测掩码已保存: d:\Github\Infrared-Small-Target-Detection\predicts\images\001101_mask_20250513_175830.png
+2025-05-13 17:58:30,411 - MainApp - INFO - 标注结果已保存: d:\Github\Infrared-Small-Target-Detection\predicts\images\001101_result_20250513_175830.png
+2025-05-13 17:58:32,219 - MainApp - INFO - 应用程序关闭

@@ -1,0 +1,20 @@
+name: infrared-target
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - numpy>=1.19.0
+  - scipy>=1.6.0
+  - pytorch>=1.7.0
+  - torchvision>=0.8.0
+  - cudatoolkit=11.0
+  - opencv>=4.5.0
+  - pillow>=8.0.0
+  - scikit-image>=0.18.0
+  - matplotlib>=3.3.0
+  - tqdm>=4.50.0
+  - pip>=21.0
+  - pip:
+    - tk>=0.1.0

@@ -1,0 +1,15 @@
+2025-05-16 21:55:43,801 - MainApp - INFO - 日志记录已启动，日志文件：d:\Github\Infrared-Small-Target-Detection\logs\MainApp_20250516_215543.log
+2025-05-16 21:55:43,802 - MainApp - INFO - OpenCV 版本: 4.11.0
+2025-05-16 21:55:43,802 - MainApp - INFO - OpenCV 路径: C:\Users\Nero\.conda\envs\Infrared-Small-Target-Detection\lib\site-packages\cv2\__init__.py
+2025-05-16 21:55:44,967 - MainApp - INFO - 创建预测结果目录: d:\Github\Infrared-Small-Target-Detection\predicts
+2025-05-16 21:55:44,990 - MainApp - INFO - 使用设备: cuda
+2025-05-16 21:55:45,032 - MainApp - INFO - 切换到图像模式
+2025-05-16 21:55:45,056 - MainApp - INFO - 开始加载模型: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-16 21:55:45,332 - MainApp - INFO - 更新模型路径: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-16 21:55:45,332 - MainApp - INFO - 模型加载成功: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-16 21:55:47,421 - MainApp - INFO - 切换到视频模式
+2025-05-16 21:55:47,429 - MainApp - INFO - 视频模式初始化，使用设备：cuda
+2025-05-16 21:55:47,446 - MainApp - INFO - 开始加载模型: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-16 21:55:47,587 - MainApp - INFO - 更新模型路径: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-16 21:55:47,587 - MainApp - INFO - 模型加载成功: D:/Github/Infrared-Small-Target-Detection/result/NUDT-SIRST_DNANet_21_02_2025_23_09_23_wDS/mIoU__DNANet_NUDT-SIRST_epoch.pth.tar
+2025-05-16 21:55:52,011 - MainApp - INFO - 应用程序关闭

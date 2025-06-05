@@ -1,0 +1,19 @@
+# 基础科学计算库
+numpy>=1.19.0
+scipy>=1.6.0
+
+# 深度学习框架
+torch>=1.7.0
+torchvision>=0.8.0
+
+# 图像处理
+opencv-python>=4.5.0
+pillow>=8.0.0
+scikit-image>=0.18.0
+
+# 可视化和绘图
+matplotlib>=3.3.0
+tqdm>=4.50.0
+
+# GUI界面
+tk>=0.1.0  # TkInter通常随Python安装，但显式添加以确保

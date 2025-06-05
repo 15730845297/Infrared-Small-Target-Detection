@@ -25,7 +25,7 @@ except ImportError as e:
 
 # 启动应用程序
 try:
-    from infrared_detection_app import InfraredDetectionApp
+    from infrared_detection_app import InfraredDetectionApp 
     
     root = tk.Tk()
     app = InfraredDetectionApp(root)
